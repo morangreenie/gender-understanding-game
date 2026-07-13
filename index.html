@@ -200,20 +200,20 @@
 
     /* Character gallery */
     .gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-    .character-button { width: 100%; min-height: 460px; padding: 0; border: 0; background: transparent; perspective: 1300px; cursor: pointer; text-align: left; }
-    .character-inner { position: relative; width: 100%; min-height: 460px; transition: transform .55s cubic-bezier(.2,.72,.2,1); transform-style: preserve-3d; }
+    .character-button { display: block; width: 100%; min-height: 460px; padding: 0; border: 0; background: transparent; perspective: 1300px; cursor: pointer; text-align: left; }
+    .character-inner { display: block; position: relative; width: 100%; min-height: 460px; transition: transform .55s cubic-bezier(.2,.72,.2,1); transform-style: preserve-3d; }
     .character-button.flipped .character-inner { transform: rotateY(180deg); }
     .character-face {
       position: absolute; inset: 0; overflow: auto; padding: 24px; border-radius: 24px;
       background: linear-gradient(155deg, var(--character-pale), #fff 58%);
       border: 4px solid var(--character); box-shadow: var(--shadow);
-      backface-visibility: hidden;
+      display: block; backface-visibility: hidden; overscroll-behavior: contain;
     }
     .character-back { transform: rotateY(180deg); }
-    .card-avatar { width: 132px; margin: 4px auto 16px; }
+    .card-avatar { display: block; width: 132px; margin: 4px auto 16px; }
     .card-avatar .avatar { width: 132px; }
     .character-name { margin: 0 0 5px; text-align: center; }
-    .pronouns { text-align: center; color: #584a70; font-weight: 800; }
+    .pronouns { display: block; text-align: center; color: #584a70; font-weight: 800; }
     .tap-note { margin-top: 22px; text-align: center; color: #3f2b73; font-weight: 900; }
     .viewed-stamp { position: absolute; top: 14px; right: 14px; padding: 5px 9px; border-radius: 999px; color: #fff; background: #087e80; font-size: 14px; font-weight: 900; }
     .trait { margin: 10px 0 13px; }
@@ -230,7 +230,34 @@
     .round-badge.done { color: #fff; background: var(--teal); }
     .quiz-card { max-width: 850px; margin: 0 auto; }
     .question-count { color: #5c4f72; font-weight: 900; }
-    .scenario { padding: 20px; border-radius: 18px; background: #fff8d6; border: 3px solid #d7a700; font-size: 1.22rem; font-weight: 900; }
+    .question-scene {
+      display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 24px; align-items: stretch;
+      margin-top: 14px; padding: 18px; border-radius: 22px;
+      background: linear-gradient(140deg, #f1eaff, #fff9db 58%, #e8fffc);
+      border: 3px solid #8d76c3;
+    }
+    .quiz-visual {
+      position: relative; min-height: 220px; padding: 14px 10px 12px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; border-radius: 18px; background: rgba(255,255,255,.82);
+      border: 2px dashed #947dc8;
+    }
+    .quiz-visual > .avatar { width: 150px; flex: 0 0 auto; }
+    .quiz-visual.duo { flex-direction: row; flex-wrap: wrap; align-content: center; gap: 7px; }
+    .quiz-visual.duo > .avatar { width: 106px; margin: 0 -7px 3px; }
+    .quiz-visual-name { display: block; width: 100%; margin-top: 4px; color: #352169; font-size: 1.08rem; font-weight: 900; }
+    .guide-cameo {
+      position: absolute; right: -12px; top: -17px; width: 62px; padding: 4px;
+      border-radius: 16px; background: #fff; border: 3px solid #6845c7;
+      box-shadow: 0 5px 0 rgba(54,33,105,.14);
+    }
+    .guide-cameo .avatar { width: 48px; margin: 0 auto 2px; border-width: 2px; box-shadow: none; }
+    .guide-cameo .avatar .mark { font-size: 18px; }
+    .guide-cameo .avatar .smile { border-width: 2px; }
+    .guide-cameo span { display: block; color: #4e3c72; font-size: 11px; font-weight: 900; line-height: 1.15; }
+    .scenario-wrap { display: flex; flex-direction: column; justify-content: center; }
+    .scene-caption { margin: 0 0 6px; color: #5a4b72; font-size: 15px; font-weight: 900; }
+    .scenario { margin: 0; padding: 20px; border-radius: 18px; background: #fff8d6; border: 3px solid #d7a700; font-size: 1.22rem; font-weight: 900; }
     .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
     .answer-button { min-height: 64px; color: #2d195a; background: #f7f3ff; border: 3px solid #8d76c3; text-align: left; }
     .answer-button:hover { background: #e9ddff; transform: translateY(-2px); }
@@ -299,6 +326,10 @@
       .gallery { grid-template-columns: 1fr; }
       .character-button, .character-inner { min-height: 485px; }
       .answers { grid-template-columns: 1fr; }
+      .question-scene { grid-template-columns: 1fr; gap: 12px; padding: 14px; }
+      .quiz-visual { min-height: 200px; }
+      .quiz-visual > .avatar { width: 142px; }
+      .quiz-visual.duo > .avatar { width: 104px; }
       .concept-summary { grid-template-columns: 1fr; }
       .crew-strip .avatar { width: 54px; }
       .crew-strip .crew-member { font-size: 12px; }
@@ -359,12 +390,12 @@
         note: "Intersex bodies can have many different mixes of sex traits. They are not just one point in the middle."
       },
       {
-        id: "identity", icon: "💜", short: "Who I am inside", formal: "Gender Identity",
+        id: "identity", icon: "💜", short: "The gender category that fits me best", formal: "Gender Identity",
         color: "#6845c7", pale: "#f1ebff", left: "#ec9ac5", right: "#77c9dd",
-        definition: "This is how you feel inside — like a girl, a boy, both, neither, or another way. You are the best person to say how you feel.",
-        analogy: "It is like your favourite colour. Other people cannot choose it for you, and it is okay if you are not sure yet.",
+        definition: "Gender identity is the gender category that feels like the best fit for you — girl, boy, both, neither, or another way. You are the best person to say which category fits you, and it is okay not to be sure yet.",
+        analogy: "It is the gender word or category that fits you best. Other people cannot decide it for you, and it is okay if you are still working it out.",
         labels: ["Girl", "Nonbinary & other ways", "Boy"],
-        note: "Nonbinary is not always halfway between girl and boy. There are many ways to feel."
+        note: "Nonbinary is not always halfway between girl and boy. It can fit people in many different ways."
       },
       {
         id: "expression", icon: "👗", short: "How I show myself", formal: "Gender Expression",
@@ -372,7 +403,7 @@
         definition: "This is what you show to the world — clothes, hair, name, voice, or how you act around other people.",
         analogy: "It is like choosing an outfit. You can show yourself in different ways on different days.",
         labels: ["Feminine styles", "Mixed or neutral", "Masculine styles"],
-        note: "A person's look does not tell you for sure who they are inside."
+        note: "A person's look does not tell you which gender category fits them."
       },
       {
         id: "traits", icon: "🎨", short: "Interests & personality", formal: "Gender Nonconformity",
@@ -388,42 +419,42 @@
       {
         id: "poison", name: "Poison", pronouns: "they / them", avatar: "poison", color: "#17764d", pale: "#e6f9e9",
         look: "Spiky hair, a dark hoodie, and a bright green spark.",
-        bio: "Poison was assigned female at birth and feels nonbinary inside. They like dark hoodies, guitar, science, and being gentle with friends.",
-        special: "Poison's identity does not have to be only boy or girl. Their clothes and interests do not decide it.",
+        bio: "Poison was assigned female at birth, and nonbinary is the gender category that fits them best. They like dark hoodies, guitar, science, and being gentle with friends.",
+        special: "Poison's identity does not have to be only boy or girl. Their clothes and interests do not decide which gender category fits them.",
         traits: [["🧬 Body traits", "Female pattern", 12], ["💜 Identity", "Nonbinary", 50], ["👗 Expression", "Androgynous", 72], ["🎨 Interests", "Their own mix", 45]]
       },
       {
         id: "spark", name: "Spark", pronouns: "he / him", avatar: "spark", color: "#9a6d00", pale: "#fff5c7",
         look: "Short hair, sporty clothes, and a sunny smile.",
-        bio: "Spark was assigned male at birth and feels like a boy. He loves football, painting, and ballet, and he is learning to share all his interests proudly.",
-        special: "Spark can love football and ballet. What he wears does not show every thing he enjoys inside.",
+        bio: "Spark was assigned male at birth, and boy is the gender category that fits him best. He loves football, painting, and ballet, and he is learning to share all his interests proudly.",
+        special: "Spark can love football and ballet. What he wears does not show everything he enjoys.",
         traits: [["🧬 Body traits", "Male pattern", 88], ["💜 Identity", "Boy", 88], ["👗 Expression", "Masculine", 82], ["🎨 Interests", "A wide mix", 50]]
       },
       {
         id: "nova", name: "Nova", pronouns: "she / her", avatar: "nova", color: "#a43a79", pale: "#ffe7f5",
         look: "Long flowing hair and a colourful dress.",
-        bio: "Nova was assigned male at birth, and she knows she is a girl. She likes fashion, drawing, games, and caring for people.",
+        bio: "Nova was assigned male at birth, and girl is the gender category that fits her best. She likes fashion, drawing, games, and caring for people.",
         special: "Nova's identity is different from the sex recorded at her birth. This is one way a person can be transgender.",
         traits: [["🧬 Body traits", "Male pattern", 88], ["💜 Identity", "Girl", 12], ["👗 Expression", "Feminine", 16], ["🎨 Interests", "Creative mix", 35]]
       },
       {
         id: "echo", name: "Echo", pronouns: "she / her", avatar: "echo", color: "#256e98", pale: "#e5f5ff",
         look: "Short hair, jeans, and a plain blue shirt.",
-        bio: "Echo was assigned female at birth and feels like a girl. She loves video games, coding, and skateboarding.",
-        special: "Echo is a girl who enjoys things some people wrongly call ‘boy things.’ Interests do not decide gender.",
+        bio: "Echo was assigned female at birth, and girl is the gender category that fits her best. She loves video games, coding, and skateboarding.",
+        special: "Echo is a girl who enjoys things some people wrongly call ‘boy things.’ Interests do not decide which gender category fits a person.",
         traits: [["🧬 Body traits", "Female pattern", 12], ["💜 Identity", "Girl", 12], ["👗 Expression", "Neutral", 53], ["🎨 Interests", "Tech & sport", 73]]
       },
       {
         id: "bloom", name: "Bloom", pronouns: "he / him", avatar: "bloom", color: "#a85d18", pale: "#fff0da",
         look: "Flowing clothes, a flower, and a gentle smile.",
-        bio: "Bloom was assigned male at birth and feels like a boy. He likes colourful clothes, cooking, and caring for animals.",
-        special: "Bloom can dress in a feminine way, be gentle, and still be a boy. No interest changes who he is.",
+        bio: "Bloom was assigned male at birth, and boy is the gender category that fits him best. He likes colourful clothes, cooking, and caring for animals.",
+        special: "Bloom can dress in a feminine way, be gentle, and still be a boy. No interest decides which gender category fits him.",
         traits: [["🧬 Body traits", "Male pattern", 88], ["💜 Identity", "Boy", 88], ["👗 Expression", "Feminine", 20], ["🎨 Interests", "Nurturing mix", 30]]
       },
       {
         id: "ghoul", name: "Ghoul", pronouns: "they / them", avatar: "ghoul", color: "#6845c7", pale: "#eee8ff",
         look: "A small purple ghost with a star and a huge smile.",
-        bio: "Ghoul is your magical guide. A ghost does not have human body traits, and Ghoul feels like neither a boy nor a girl. They enjoy spooky, cute, sporty, and arty things.",
+        bio: "Ghoul is your magical guide. A ghost does not have human body traits, and nonbinary is the gender category that fits Ghoul best. They enjoy spooky, cute, sporty, and arty things.",
         special: "Ghoul reminds us that every mix is welcome. ‘Not applicable’ is different from being in the middle of human sex traits.",
         traits: [["🧬 Body traits", "Not applicable", 50], ["💜 Identity", "Nonbinary", 50], ["👗 Expression", "Changes", 50], ["🎨 Interests", "Whole wide mix", 50]]
       }
@@ -433,28 +464,28 @@
       {
         title: "Which idea is this?", subtitle: "Match the clue to one big idea.", type: "concept",
         questions: [
-          { id: "r1q1", text: "Riley has long hair and wears pink dresses to school.", answer: "expression", hint: "This clue is about what other people can see.", explain: "That is gender expression — how Riley shows themself to the world." },
-          { id: "r1q2", text: "A female sex was recorded when Sam was born.", answer: "body", hint: "Think about body traits and what is recorded at birth.", explain: "That clue is about biological sex and body traits." },
-          { id: "r1q3", text: "Jordan is a girl who loves building robots and does not like dancing.", answer: "traits", hint: "The clue tells us what Jordan enjoys, not who she is.", explain: "That clue is about interests and personality. Jordan being a girl is her identity, but the question focuses on what she likes." },
-          { id: "r1q4", text: "Alex says, ‘I know I am a boy, even though my birth certificate says girl.’", answer: "identity", hint: "Listen to what Alex knows about who he is inside.", explain: "That is gender identity — Alex knows he is a boy inside." }
+          { id: "r1q1", art: "riley", artName: "Riley", guide: "love", caption: "Riley is ready for school.", text: "Riley has long hair and wears pink dresses to school.", answer: "expression", hint: "This clue is about what other people can see.", explain: "That is gender expression — how Riley shows themself to the world." },
+          { id: "r1q2", art: "sam", artName: "Sam", guide: "poison", caption: "Here is Sam.", text: "A female sex was recorded when Sam was born.", answer: "body", hint: "Think about body traits and what is recorded at birth.", explain: "That clue is about biological sex and body traits." },
+          { id: "r1q3", art: "jordan", artName: "Jordan", guide: "ghoul", caption: "Jordan is building a robot.", text: "Jordan is a girl who loves building robots and does not like dancing.", answer: "traits", hint: "The clue tells us about Jordan's interests, not which gender category fits her.", explain: "That clue is about interests and personality. Girl is the gender category that fits Jordan, but the question focuses on what she likes." },
+          { id: "r1q4", art: "alex", artName: "Alex", guide: "love", caption: "Alex tells us about himself.", text: "Alex says, ‘Boy is the gender category that fits me best, even though my birth certificate says girl.’", answer: "identity", hint: "Listen for the gender category Alex says fits him best.", explain: "That is gender identity — the gender category Alex says fits him best is boy." }
         ]
       },
       {
         title: "Match the character", subtitle: "Who fits each clue?", type: "character",
         questions: [
-          { id: "r2q1", text: "Assigned male. A boy. Loves football, art, and ballet. Wears sporty clothes.", answer: "spark", hint: "This sunny character has a spark of yellow.", explain: "It is Spark! His clothes do not show all the things he enjoys." },
-          { id: "r2q2", text: "Assigned male. A girl. Has long hair and loves fashion and drawing.", answer: "nova", hint: "Her name sounds like a bright star in space.", explain: "It is Nova! Her identity is different from the sex recorded at birth." },
-          { id: "r2q3", text: "Assigned female. A girl. Loves coding, gaming, and skateboarding. Dresses neutrally.", answer: "echo", hint: "Her name is something a sound can do.", explain: "It is Echo! Hobbies do not decide her identity." },
-          { id: "r2q4", text: "Assigned female. Nonbinary. Wears dark hoodies and loves guitar and science.", answer: "poison", hint: "Look for the explorer with a bright green spark.", explain: "It is Poison! Their body, identity, clothes, and interests are separate parts." }
+          { id: "r2q1", art: "mystery", artName: "Mystery friend", guide: "ghoul", caption: "Who is hiding here?", text: "Assigned male. A boy. Loves football, art, and ballet. Wears sporty clothes.", answer: "spark", hint: "This sunny character has a spark of yellow.", explain: "It is Spark! His clothes do not show all the things he enjoys." },
+          { id: "r2q2", art: "mystery", artName: "Mystery friend", guide: "love", caption: "Look closely at the clues.", text: "Assigned male. A girl. Has long hair and loves fashion and drawing.", answer: "nova", hint: "Her name sounds like a bright star in space.", explain: "It is Nova! Her identity is different from the sex recorded at birth." },
+          { id: "r2q3", art: "mystery", artName: "Mystery friend", guide: "poison", caption: "Can you name this friend?", text: "Assigned female. A girl. Loves coding, gaming, and skateboarding. Dresses neutrally.", answer: "echo", hint: "Her name is something a sound can do.", explain: "It is Echo! Hobbies do not decide her identity." },
+          { id: "r2q4", art: "mystery", artName: "Mystery friend", guide: "ghoul", caption: "One last mystery creature!", text: "Assigned female. Nonbinary. Wears dark hoodies and loves guitar and science.", answer: "poison", hint: "Look for the explorer with a bright green spark.", explain: "It is Poison! Their body, identity, clothes, and interests are separate parts." }
         ]
       },
       {
         title: "True or false — and why?", subtitle: "First choose true or false. Then choose the best reason.", type: "truth",
         questions: [
-          { id: "r3q1", text: "A girl who loves football must really be a boy inside.", truth: false, hint: "Can a hobby tell us who someone is inside?", reasons: ["Interests and gender identity are different things.", "Football changes a person's identity."], reason: 0, explain: "Interests do not decide gender identity. A girl can love football." },
-          { id: "r3q2", text: "Someone can be assigned male at birth and still be a girl.", truth: true, hint: "Remember Nova's body traits and identity.", reasons: ["Biological sex and gender identity are different parts.", "A person's clothes change the sex recorded at birth."], reason: 0, explain: "Body traits and gender identity are different. This is true for some transgender girls." },
-          { id: "r3q3", text: "The way someone dresses always tells you their gender identity.", truth: false, hint: "Think about Bloom and Poison.", reasons: ["Expression is separate from identity.", "Everyone who wears a dress is a girl."], reason: 0, explain: "Expression is what we show. Identity is who we are inside." },
-          { id: "r3q4", text: "You can be a boy with feminine interests and still be a boy.", truth: true, hint: "Think about Bloom's identity and interests.", reasons: ["Identity and interests are different parts.", "Feminine interests turn a boy into a girl."], reason: 0, explain: "A boy can enjoy anything and still know he is a boy." }
+          { id: "r3q1", art: "echo", artName: "Echo", guide: "ghoul", caption: "Echo brought a football.", text: "A girl who loves football must actually be a boy.", truth: false, hint: "Can a hobby tell us which gender category fits someone?", reasons: ["Interests and gender identity are different things.", "Football changes a person's identity."], reason: 0, explain: "Interests do not decide gender identity. A girl can love football." },
+          { id: "r3q2", art: "nova", artName: "Nova", guide: "poison", caption: "Nova knows which category fits her.", text: "Someone can be assigned male at birth and still be a girl.", truth: true, hint: "Remember Nova's body traits and identity.", reasons: ["Biological sex and gender identity are different parts.", "A person's clothes change the sex recorded at birth."], reason: 0, explain: "Body traits and gender identity are different. This is true for some transgender girls." },
+          { id: "r3q3", art: ["poison", "bloom"], artLabels: ["Poison", "Bloom"], artName: "Poison & Bloom", guide: "love", caption: "These friends dress in their own ways.", text: "The way someone dresses always tells you their gender identity.", truth: false, hint: "Think about Bloom and Poison.", reasons: ["Expression is separate from identity.", "Everyone who wears a dress is a girl."], reason: 0, explain: "Expression is what we show. Gender identity is the gender category that fits us best." },
+          { id: "r3q4", art: "bloom", artName: "Bloom", guide: "ghoul", caption: "Bloom enjoys his own mix.", text: "You can be a boy with feminine interests and still be a boy.", truth: true, hint: "Think about Bloom's identity and interests.", reasons: ["Identity and interests are different parts.", "Feminine interests turn a boy into a girl."], reason: 0, explain: "A boy can enjoy anything. Interests do not decide which gender category fits him." }
         ]
       }
     ];
@@ -506,10 +537,26 @@
         spark: "background:linear-gradient(145deg,#fff2a3,#e5a900);",
         nova: "background:linear-gradient(145deg,#ffb6df,#8c54d8);",
         echo: "background:linear-gradient(145deg,#b8ebff,#377ea5);",
-        bloom: "background:linear-gradient(145deg,#ffd3a1,#dd7b28);"
+        bloom: "background:linear-gradient(145deg,#ffd3a1,#dd7b28);",
+        riley: "background:linear-gradient(145deg,#ffc1df,#9f62da);",
+        sam: "background:linear-gradient(145deg,#b9f4e5,#268c92);",
+        jordan: "background:linear-gradient(145deg,#b8d8ff,#5961c8);",
+        alex: "background:linear-gradient(145deg,#ffd39f,#8d57c8);",
+        mystery: "background:linear-gradient(145deg,#8a78b5,#2d2253);"
       };
-      const marks = { spark: "⚡", nova: "✦", echo: "≋", bloom: "✿" };
+      const marks = { spark: "⚡", nova: "✦", echo: "≋", bloom: "✿", riley: "❀", sam: "◆", jordan: "⚙", alex: "★", mystery: "?" };
       return `<div class="avatar" style="${styles[kind] || "background:#ddd;"}" role="img" aria-label="${safe(label || kind)}"><span class="mark" aria-hidden="true">${marks[kind] || "●"}</span><span class="smile" aria-hidden="true"></span></div>`;
+    }
+
+    function quizVisualHTML(q) {
+      const kinds = Array.isArray(q.art) ? q.art : [q.art || "ghoul"];
+      const guideNames = { poison: "Poison", love: "Love", ghoul: "Ghoul" };
+      const guideName = guideNames[q.guide] || "Ghoul";
+      const art = kinds.map((kind, index) => avatarHTML(kind, q.artLabels?.[index] || q.artName || "Quiz creature")).join("");
+      return `<div class="quiz-visual ${kinds.length > 1 ? "duo" : ""}">
+        ${art}<strong class="quiz-visual-name">${safe(q.artName || "Quiz creature")}</strong>
+        <div class="guide-cameo" aria-label="${guideName} asks this question">${avatarHTML(q.guide || "ghoul", guideName)}<span>${guideName} asks</span></div>
+      </div>`;
     }
 
     function crewFallback(extraClass = "") {
@@ -689,7 +736,10 @@
         <article class="quiz-card panel">
           <p class="question-count">Question ${globalNumber} of 12 • ${state.currentQuestion + 1} of 4 in this round</p>
           ${r.type === "truth" && state.quizStage === "reason" ? `<span class="truth-stage">Good! Now choose the best reason.</span>` : ""}
-          <p class="scenario">${q.text}</p>
+          <div class="question-scene">
+            ${quizVisualHTML(q)}
+            <div class="scenario-wrap"><p class="scene-caption">${safe(q.caption || "Creature clue")}</p><p class="scenario">${q.text}</p></div>
+          </div>
           <div class="answers">
             ${r.type === "truth" ? renderTruthAnswers(q) : options.map(([id,label]) => `<button type="button" class="answer-button" data-answer="${id}" aria-label="Answer ${safe(label)}">${label}</button>`).join("")}
           </div>
