@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#4b2e83">
+  <title>GenderQuest â€” Learn, Play, Explore</title>
+  <style>
+    /* ================================================================
+       GenderQuest â€” self-contained visual system
+       ================================================================ */
+    :root {
+      --ink: #241747;
+      --ink-soft: #493d67;
+      --purple: #6845c7;
+      --purple-deep: #43257f;
+      --teal: #087e80;
+      --teal-light: #5ed4cf;
+      --pink: #ee6d9e;
+      --yellow: #ffd75d;
+      --cream: #fffaf1;
+      --paper: #ffffff;
+      --green: #12805b;
+      --red: #a92f4b;
+      --shadow: 0 14px 32px rgba(51, 32, 97, .16);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(255, 215, 93, .34), transparent 23rem),
+        radial-gradient(circle at 92% 18%, rgba(94, 212, 207, .30), transparent 26rem),
+        linear-gradient(145deg, #f5edff, #fff9ef 48%, #ebfffd);
+      font-family: "Trebuchet MS", "Arial Rounded MT Bold", Arial, sans-serif;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+    button, input { font: inherit; }
+    button { min-height: 48px; }
+    button, .tap-card { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+      outline: 4px solid #0b6bca;
+      outline-offset: 4px;
+    }
+    .skip-link {
+      position: fixed; left: 16px; top: -90px; z-index: 9999;
+      padding: 12px 18px; background: #fff; color: #17112c;
+      border: 3px solid #17112c; border-radius: 12px;
+    }
+    .skip-link:focus { top: 16px; }
+    .sr-only {
+      position: absolute !important; width: 1px; height: 1px; padding: 0;
+      margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;
+    }
+
+    /* Persistent quest status */
+    .quest-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255, 255, 255, .95);
+      border-bottom: 3px solid rgba(104, 69, 199, .18);
+      backdrop-filter: blur(12px);
+    }
+    .quest-header-inner {
+      max-width: 1180px; margin: 0 auto; padding: 10px 18px 11px;
+      display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 900; letter-spacing: -.03em; }
+    .brand-mark { font-size: 29px; filter: drop-shadow(0 2px 0 #fff); }
+    .status-row { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+    .score-pill {
+      min-height: 46px; padding: 8px 13px; border-radius: 99px;
+      background: #fff5c8; border: 2px solid #d5a500; color: #4a3500;
+      font-weight: 900; white-space: nowrap;
+    }
+    .icon-button {
+      width: 48px; min-width: 48px; padding: 0; border: 2px solid #513a87;
+      border-radius: 50%; color: var(--ink); background: #fff; cursor: pointer;
+    }
+    .progress-wrap { min-width: 150px; }
+    .progress-label { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 800; }
+    .progress-track { height: 14px; overflow: hidden; border-radius: 20px; background: #ded8ec; border: 1px solid #b4a8cf; }
+    .progress-fill {
+      width: 0; height: 100%; border-radius: inherit;
+      background: linear-gradient(90deg, var(--purple), var(--teal-light));
+      transition: width .35s ease;
+    }
+
+    main { width: min(1180px, calc(100% - 28px)); margin: 0 auto; padding: 34px 0 70px; }
+    .screen { animation: screen-in .32s ease both; }
+    @keyframes screen-in { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
+    h1, h2, h3 { margin-top: 0; line-height: 1.13; }
+    h1 { font-size: clamp(2.25rem, 7vw, 4.8rem); letter-spacing: -.05em; }
+    h2 { font-size: clamp(1.65rem, 4vw, 2.7rem); }
+    h3 { font-size: 1.35rem; }
+    p { max-width: 68ch; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 7px; margin-bottom: 12px;
+      padding: 7px 12px; border-radius: 999px; background: #e9ddff;
+      color: #3a1b77; font-weight: 900; font-size: 16px; letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .lead { font-size: clamp(1.08rem, 2.2vw, 1.32rem); color: var(--ink-soft); }
+    .panel {
+      background: rgba(255, 255, 255, .96); border: 3px solid rgba(104, 69, 199, .17);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: clamp(22px, 4vw, 42px);
+    }
+    .soft-panel { background: rgba(255,255,255,.72); border: 2px solid rgba(67,37,127,.12); border-radius: 20px; padding: 18px; }
+    .hero-grid { display: grid; grid-template-columns: 1.02fr .98fr; gap: 34px; align-items: center; }
+    .hero-copy p { font-size: 1.16rem; }
+    .name-form { max-width: 540px; margin-top: 26px; }
+    .name-form label { display: block; margin-bottom: 8px; font-weight: 900; }
+    .name-row { display: flex; gap: 10px; }
+    .name-row input {
+      width: 100%; min-height: 54px; padding: 12px 16px; border: 3px solid #8e7ab9;
+      border-radius: 15px; color: var(--ink); background: #fff;
+    }
+    .tiny-note { font-size: 15px; color: #5b4e72; }
+
+    .primary-button, .secondary-button, .answer-button, .hint-button {
+      border: 0; border-radius: 15px; padding: 12px 19px; cursor: pointer;
+      font-weight: 900; transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .primary-button {
+      color: #fff; background: linear-gradient(135deg, #6340bd, #176f82);
+      box-shadow: 0 7px 0 #352169, 0 12px 22px rgba(66, 42, 127, .22);
+    }
+    .primary-button:hover { transform: translateY(-2px); box-shadow: 0 9px 0 #352169, 0 14px 24px rgba(66, 42, 127, .25); }
+    .primary-button:active { transform: translateY(4px); box-shadow: 0 3px 0 #352169; }
+    .secondary-button { color: #352169; background: #fff; border: 3px solid #6845c7; }
+    .secondary-button:hover { background: #f2ebff; transform: translateY(-2px); }
+    .button-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+    .button-row.center { justify-content: center; }
+    button[disabled] { opacity: .5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+    /* Patient-created main crew */
+    .main-crew { position: relative; min-height: 360px; display: grid; place-items: center; }
+    .patient-art-img { width: 100%; max-height: 520px; object-fit: contain; border-radius: 28px; }
+    .crew-fallback { display: flex; align-items: flex-end; justify-content: center; gap: clamp(8px, 2vw, 22px); width: 100%; }
+    .crew-member { text-align: center; font-weight: 900; }
+    .crew-member:nth-child(2) { transform: translateY(-22px); }
+    .avatar {
+      position: relative; width: clamp(100px, 18vw, 176px); aspect-ratio: 1; margin: 0 auto 7px;
+      display: grid; place-items: center; border-radius: 42% 58% 48% 52% / 52% 42% 58% 48%;
+      box-shadow: 0 13px 0 rgba(36,23,71,.12), 0 20px 30px rgba(55,35,110,.18);
+      border: 5px solid #fff;
+    }
+    .avatar::before, .avatar::after { content: ""; position: absolute; background: var(--ink); border-radius: 50%; width: 13%; aspect-ratio: 1; top: 44%; }
+    .avatar::before { left: 29%; }
+    .avatar::after { right: 29%; }
+    .avatar .smile { width: 28%; height: 15%; border: 5px solid var(--ink); border-top: 0; border-left-color: transparent; border-right-color: transparent; border-radius: 0 0 50% 50%; margin-top: 35%; }
+    .avatar .mark { position: absolute; top: 11%; font-size: clamp(24px, 4vw, 42px); line-height: 1; }
+    .poison-avatar { background: linear-gradient(145deg, #84ec70, #186c4a); border-radius: 50% 46% 55% 44%; }
+    .poison-avatar::after { box-shadow: 0 0 0 4px #b6ff75; }
+    .love-avatar { background: linear-gradient(145deg, #ffb3d2, #e14c8b); border-radius: 50% 50% 43% 43%; }
+    .love-avatar .mark { color: #fff; filter: drop-shadow(0 3px 0 #a82b62); }
+    .ghoul-avatar { background: linear-gradient(145deg, #b592ff, #6845c7 58%, #30aaa9); border-radius: 50% 50% 46% 46%; animation: ghoul-bounce 2.4s ease-in-out infinite; }
+    .ghoul-avatar .mark { color: #ffe57a; filter: drop-shadow(0 2px 0 #765b00); }
+    @keyframes ghoul-bounce { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-8px) rotate(1deg); } }
+    .speech {
+      position: relative; margin: 16px auto 0; max-width: 650px; padding: 16px 19px;
+      color: #2b1a55; background: #fff; border: 3px solid #6845c7; border-radius: 18px;
+      font-weight: 800; box-shadow: 0 7px 0 rgba(104,69,199,.13);
+    }
+    .speech::before { content: ""; position: absolute; top: -13px; left: 48px; width: 20px; height: 20px; background: #fff; border-left: 3px solid #6845c7; border-top: 3px solid #6845c7; transform: rotate(45deg); }
+    .crew-strip { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 0 auto 22px; }
+    .crew-strip .avatar { width: 68px; border-width: 3px; box-shadow: 0 6px 0 rgba(36,23,71,.1); }
+    .crew-strip .crew-member:nth-child(2) { transform: translateY(-5px); }
+    .crew-strip .crew-member { font-size: 14px; }
+    .crew-strip .avatar .smile { border-width: 3px; }
+
+    /* Learn */
+    .section-head { text-align: center; max-width: 850px; margin: 0 auto 28px; }
+    .lesson-card { overflow: hidden; padding: 0; }
+    .lesson-top { display: grid; grid-template-columns: 170px 1fr; gap: 26px; padding: clamp(24px,4vw,42px); align-items: center; }
+    .lesson-icon { display: grid; place-items: center; width: 150px; aspect-ratio: 1; border-radius: 32px; font-size: 72px; background: var(--lesson-pale); border: 4px solid var(--lesson); transform: rotate(-2deg); }
+    .lesson-card h2 { margin-bottom: 4px; }
+    .formal-name { color: #5e5278; font-weight: 800; margin-top: 0; }
+    .analogy { margin: 0; padding: 20px clamp(24px,4vw,42px); background: var(--lesson-pale); border-top: 3px dashed var(--lesson); }
+    .analogy strong { color: #33215a; }
+    .concept-map { margin: 22px clamp(24px,4vw,42px) 10px; padding: 18px; border-radius: 18px; background: #fbf9ff; border: 2px solid #d7cce9; }
+    .map-track { position: relative; height: 18px; margin: 18px 12px 8px; border-radius: 30px; background: linear-gradient(90deg, var(--map-left), #f4eaff 50%, var(--map-right)); }
+    .map-dots { display: flex; justify-content: space-between; align-items: center; position: absolute; inset: 50% 0 auto; transform: translateY(-50%); }
+    .map-dots i { display: block; width: 18px; height: 18px; background: #fff; border: 4px solid #3f2b73; border-radius: 50%; }
+    .map-labels { display: flex; justify-content: space-between; gap: 12px; text-align: center; font-size: 15px; font-weight: 900; }
+    .map-note { margin: 12px 0 0; color: #55486b; font-size: 16px; }
+    .lesson-actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px clamp(24px,4vw,42px) 30px; }
+    .step-dots { display: flex; gap: 8px; }
+    .step-dot { width: 15px; height: 15px; border-radius: 50%; background: #c9bfdc; }
+    .step-dot.done { background: var(--teal); }
+    .concept-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 25px 0; }
+    .summary-tile { padding: 18px; text-align: center; background: #fff; border: 3px solid var(--tile); border-radius: 19px; }
+    .summary-icon { font-size: 43px; }
+
+    /* Character gallery */
+    .gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+    .character-button { width: 100%; min-height: 460px; padding: 0; border: 0; background: transparent; perspective: 1300px; cursor: pointer; text-align: left; }
+    .character-inner { position: relative; width: 100%; min-height: 460px; transition: transform .55s cubic-bezier(.2,.72,.2,1); transform-style: preserve-3d; }
+    .character-button.flipped .character-inner { transform: rotateY(180deg); }
+    .character-face {
+      position: absolute; inset: 0; overflow: auto; padding: 24px; border-radius: 24px;
+      background: linear-gradient(155deg, var(--character-pale), #fff 58%);
+      border: 4px solid var(--character); box-shadow: var(--shadow);
+      backface-visibility: hidden;
+    }
+    .character-back { transform: rotateY(180deg); }
+    .card-avatar { width: 132px; margin: 4px auto 16px; }
+    .card-avatar .avatar { width: 132px; }
+    .character-name { margin: 0 0 5px; text-align: center; }
+    .pronouns { text-align: center; color: #584a70; font-weight: 800; }
+    .tap-note { margin-top: 22px; text-align: center; color: #3f2b73; font-weight: 900; }
+    .viewed-stamp { position: absolute; top: 14px; right: 14px; padding: 5px 9px; border-radius: 999px; color: #fff; background: #087e80; font-size: 14px; font-weight: 900; }
+    .trait { margin: 10px 0 13px; }
+    .trait-label { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 900; }
+    .trait-track { position: relative; height: 10px; margin-top: 6px; border-radius: 20px; background: linear-gradient(90deg, #f7a9c7, #ddd2f4 50%, #72d5d0); }
+    .trait-dot { position: absolute; top: 50%; left: var(--pos); width: 18px; height: 18px; border-radius: 50%; background: #2d195a; border: 3px solid #fff; transform: translate(-50%, -50%); box-shadow: 0 0 0 2px #2d195a; }
+    .special { padding: 12px; border-radius: 14px; background: #fff6c9; border: 2px solid #d9aa00; color: #4f3900; font-size: 15px; }
+    .unlock-panel { margin-top: 24px; text-align: center; }
+
+    /* Quiz */
+    .round-badges { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 23px; }
+    .round-badge { padding: 7px 12px; border-radius: 99px; background: #e7e0f3; color: #514667; font-weight: 900; font-size: 15px; }
+    .round-badge.active { color: #fff; background: var(--purple); }
+    .round-badge.done { color: #fff; background: var(--teal); }
+    .quiz-card { max-width: 850px; margin: 0 auto; }
+    .question-count { color: #5c4f72; font-weight: 900; }
+    .scenario { padding: 20px; border-radius: 18px; background: #fff8d6; border: 3px solid #d7a700; font-size: 1.22rem; font-weight: 900; }
+    .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+    .answer-button { min-height: 64px; color: #2d195a; background: #f7f3ff; border: 3px solid #8d76c3; text-align: left; }
+    .answer-button:hover { background: #e9ddff; transform: translateY(-2px); }
+    .hint-button { margin-top: 18px; color: #124e50; background: #e0fffc; border: 3px solid #238f91; }
+    .feedback { min-height: 62px; margin-top: 18px; padding: 14px 17px; border-radius: 16px; font-weight: 900; }
+    .feedback:empty { min-height: 0; padding: 0; }
+    .feedback.good { color: #074e36; background: #dff9ed; border: 3px solid #12805b; }
+    .feedback.try { color: #702038; background: #ffe7ee; border: 3px solid #b73859; }
+    .feedback.hint { color: #423113; background: #fff3c3; border: 3px solid #bb8c00; }
+    .truth-stage { display: inline-flex; padding: 7px 11px; border-radius: 10px; color: #fff; background: #4b2e83; font-weight: 900; }
+    .celebration { text-align: center; max-width: 720px; margin: 0 auto; overflow: hidden; }
+    .celebration .big-star { font-size: 92px; animation: star-pop .7s both; }
+    @keyframes star-pop { 0% { opacity: 0; transform: scale(.2) rotate(-35deg); } 70% { transform: scale(1.22) rotate(8deg); } 100% { opacity: 1; transform: scale(1); } }
+
+    /* Certificate */
+    .certificate-shell { max-width: 1000px; margin: 0 auto; }
+    .certificate {
+      position: relative; overflow: hidden; min-height: 650px; padding: clamp(28px, 6vw, 72px);
+      text-align: center; background: linear-gradient(145deg, #f0e4ff, #fffdf3 46%, #d8fffb);
+      border: 12px double #b68800; border-radius: 24px; box-shadow: 0 24px 55px rgba(46,26,93,.2);
+    }
+    .certificate::before, .certificate::after { content: "âœ¦ â˜… âœ¦"; position: absolute; color: #a77900; font-size: 28px; letter-spacing: 10px; }
+    .certificate::before { top: 14px; left: 22px; }
+    .certificate::after { right: 22px; bottom: 14px; }
+    .certificate h1 { margin: 16px 0; font-size: clamp(2.1rem, 5vw, 4rem); color: #3c2274; }
+    .certificate-name { display: inline-block; min-width: min(520px, 90%); padding: 8px 22px; border-bottom: 4px solid #6b4b13; font-family: Georgia, serif; font-size: clamp(1.9rem, 5vw, 3.2rem); font-weight: 800; }
+    .certificate-copy { margin: 24px auto; font-family: Georgia, serif; font-size: 1.12rem; }
+    .star-total { display: inline-block; padding: 12px 21px; border-radius: 99px; color: #493500; background: #fff1a8; border: 3px solid #b88d00; font-weight: 900; font-size: 1.25rem; }
+    .certificate-crew { margin-top: 28px; }
+    .certificate-crew .crew-fallback { gap: 14px; }
+    .certificate-crew .avatar { width: clamp(72px, 13vw, 125px); }
+    .certificate-crew .crew-member:nth-child(2) { transform: translateY(-10px); }
+    .certificate-crew .crew-member { font-size: 14px; }
+
+    /* Reward effects */
+    .star-burst { position: fixed; z-index: 1000; left: 50%; top: 35%; pointer-events: none; font-size: 72px; animation: burst 1s ease-out forwards; }
+    @keyframes burst { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.2) rotate(-20deg); } 35% { opacity: 1; transform: translate(-50%,-50%) scale(1.25) rotate(8deg); } 100% { opacity: 0; transform: translate(-50%,-100%) scale(.9) rotate(25deg); } }
+    .confetti { position: fixed; z-index: 999; left: var(--x); top: -20px; font-size: var(--size); pointer-events: none; animation: fall var(--speed) ease-in forwards; }
+    @keyframes fall { to { transform: translate(var(--drift), 110vh) rotate(700deg); opacity: .1; } }
+    .easter .ghoul-avatar { animation: mega-spin 1.2s ease both; }
+    .easter .crew-member:last-child { transform: scale(1.35); }
+    @keyframes mega-spin { 0% { transform: scale(.4) rotate(0); } 65% { transform: scale(1.25) rotate(380deg); } 100% { transform: scale(1) rotate(360deg); } }
+
+    .app-footer { padding: 28px 12px; text-align: center; color: #554a69; font-size: 14px; }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-copy { text-align: center; }
+      .hero-copy p, .name-form { margin-left: auto; margin-right: auto; }
+      .hero-grid .main-crew { order: -1; min-height: 260px; }
+      .gallery { grid-template-columns: 1fr 1fr; }
+      .concept-summary { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      body { font-size: 18px; }
+      .quest-header-inner { grid-template-columns: 1fr auto; }
+      .progress-wrap { grid-column: 1 / -1; grid-row: 2; }
+      .status-row { grid-column: 2; grid-row: 1; }
+      .score-pill .points-word { display: none; }
+      main { width: min(100% - 20px, 1180px); padding-top: 22px; }
+      .panel { padding: 22px 17px; border-radius: 20px; }
+      .name-row { flex-direction: column; }
+      .lesson-top { grid-template-columns: 1fr; text-align: center; }
+      .lesson-icon { width: 128px; margin: 0 auto; }
+      .lesson-actions { flex-direction: column; }
+      .gallery { grid-template-columns: 1fr; }
+      .character-button, .character-inner { min-height: 485px; }
+      .answers { grid-template-columns: 1fr; }
+      .concept-summary { grid-template-columns: 1fr; }
+      .crew-strip .avatar { width: 54px; }
+      .crew-strip .crew-member { font-size: 12px; }
+      .certificate { min-height: 610px; padding: 34px 18px; border-width: 8px; }
+      .button-row > button { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
+    }
+    @media print {
+      @…46456 tokens truncated…Title">
+        <div class="hero-copy">
+          <span class="eyebrow">A kindness quest</span>
+          <h1 id="welcomeTitle">Every person has their own mix.</h1>
+          <p class="lead">Join Poison, Love, and Ghoul to explore four gender ideas. There are no trick questions, and you can always try again.</p>
+          <form class="name-form" id="nameForm">
+            <label for="playerName">What name should the crew call you?</label>
+            <div class="name-row">
+              <input id="playerName" name="playerName" maxlength="30" autocomplete="nickname" value="${safe(state.playerName)}" required aria-describedby="nameHelp">
+              <button class="primary-button" type="submit" aria-label="Start the GenderQuest adventure">Start quest â­</button>
+            </div>
+            <p class="tiny-note" id="nameHelp">Your name stays on this device. It is not sent anywhere.</p>
+          </form>
+        </div>
+        <div>
+          ${mainCrewHTML()}
+          <div class="speech"><strong>Ghoul says:</strong> â€œYou do not need to label yourself in this game. We are learning how to understand people kindly!â€</div>
+        </div>
+      </section>`;
+    }
+
+    function startGame(event) {
+      event.preventDefault();
+      const input = document.getElementById("playerName");
+      const name = input.value.trim();
+      if (!name) { input.focus(); announce("Please enter a name to start."); return; }
+      state.playerName = name.slice(0, 30);
+      state.easterEgg = name.toUpperCase() === "GHOUL";
+      state.currentScreen = 1;
+      playReward();
+      render();
+      if (state.easterEgg) { celebrate(24); announce("Secret Ghoul spin unlocked!"); }
+    }
+
+    function renderLearn() {
+      const nextIndex = lessons.findIndex(l => !state.completedLessons.includes(l.id));
+      if (nextIndex === -1) return renderLearnSummary();
+      const l = lessons[nextIndex];
+      return `<section class="screen" aria-labelledby="learnTitle">
+        ${crewStrip()}
+        <div class="section-head"><span class="eyebrow">Learn â€¢ ${nextIndex + 1} of 4</span><h1 id="learnTitle">Four parts, not one box</h1><p class="lead">Each part tells us something different. One part does not decide the others.</p></div>
+        <article class="lesson-card panel" style="--lesson:${l.color};--lesson-pale:${l.pale};--map-left:${l.left};--map-right:${l.right};">
+          <div class="lesson-top">
+            <div class="lesson-icon" aria-hidden="true">${l.icon}</div>
+            <div><h2>${l.short}</h2><p class="formal-name">The grown-up term is: ${l.formal}</p><p>${l.definition}</p></div>
+          </div>
+          <p class="analogy"><strong>Think of it this way:</strong> ${l.analogy}</p>
+          <div class="concept-map" aria-label="A map showing ${safe(l.labels.join(", "))}">
+            <strong>It can look many ways:</strong>
+            <div class="map-track" aria-hidden="true"><div class="map-dots"><i></i><i></i><i></i></div></div>
+            <div class="map-labels">${l.labels.map(x => `<span>${x}</span>`).join("")}</div>
+            <p class="map-note">ðŸ’¡ ${l.note}</p>
+          </div>
+          <div class="lesson-actions">
+            <div class="step-dots" aria-label="${state.completedLessons.length} of 4 lessons complete">${lessons.map(x => `<span class="step-dot ${state.completedLessons.includes(x.id) ? "done" : ""}"></span>`).join("")}</div>
+            <button type="button" class="primary-button" data-complete-lesson="${l.id}" aria-label="I understand ${safe(l.formal)} and want to continue">Got it! +10 points â­</button>
+          </div>
+        </article>
+      </section>`;
+    }
+
+    function completeLesson(id) {
+      if (!state.completedLessons.includes(id)) { state.completedLessons.push(id); state.points += 10; reward(`Great learning, ${state.playerName}! Ten points.`); }
+      render(false);
+      document.getElementById("app").focus();
+    }
+
+    function renderLearnSummary() {
+      return `<section class="screen panel" aria-labelledby="summaryTitle">
+        ${crewStrip()}
+        <div class="section-head"><span class="eyebrow">Lesson complete</span><h1 id="summaryTitle">You found all four parts!</h1><p class="lead">Remember: body traits, identity, expression, and interests can fit together in many ways.</p></div>
+        <div class="concept-summary">${lessons.map(l => `<div class="summary-tile" style="--tile:${l.color}"><div class="summary-icon" aria-hidden="true">${l.icon}</div><strong>${l.short}</strong><div class="tiny-note">${l.formal}</div></div>`).join("")}</div>
+        <div class="speech"><strong>Love says:</strong> â€œLooking at someone gives us only a few clues. We can be kind, listen, and never guess private things.â€</div>
+        <div class="button-row center"><button type="button" class="primary-button" data-go-screen="2" aria-label="Meet the GenderQuest characters">Meet the characters â†’</button></div>
+      </section>`;
+    }
+
+    function traitHTML([label, value, pos]) {
+      return `<div class="trait"><div class="trait-label"><span>${label}</span><span>${value}</span></div><div class="trait-track" aria-label="${safe(label)}: ${safe(value)}"><span class="trait-dot" style="--pos:${pos}%"></span></div></div>`;
+    }
+    function renderCharacters() {
+      const allViewed = state.viewedCharacters.length === characters.length;
+      return `<section class="screen" aria-labelledby="charactersTitle">
+        ${crewStrip()}
+        <div class="section-head"><span class="eyebrow">Meet the characters</span><h1 id="charactersTitle">Six people, six different mixes</h1><p class="lead">Tap each card to turn it over. You get 5 points the first time you meet each friend.</p></div>
+        <div class="speech"><strong>Love says:</strong> â€œWe know these story characters because they told us. In real life, never guess a person's body or identity from a picture.â€</div>
+        <div class="gallery" style="margin-top:28px">${characters.map(renderCharacterCard).join("")}</div>
+        <div class="unlock-panel panel">
+          <h2>${allViewed ? "The quiz portal is open! ðŸŒŸ" : `${characters.length - state.viewedCharacters.length} character${characters.length - state.viewedCharacters.length === 1 ? "" : "s"} left to meet`}</h2>
+          <p>${allViewed ? "Poison has the questions. Ghoul has the hints. Love has your back." : "Turn over every card to unlock the quiz."}</p>
+          <button type="button" class="primary-button" data-start-quiz ${allViewed ? "" : "disabled"} aria-label="${allViewed ? "Start the quiz game" : "Quiz locked until all character cards are viewed"}">Start quiz game â†’</button>
+        </div>
+      </section>`;
+    }
+    function renderCharacterCard(c) {
+      const viewed = state.viewedCharacters.includes(c.id);
+      const flipped = openCard === c.id;
+      return `<button type="button" class="character-button ${flipped ? "flipped" : ""}" data-character="${c.id}" aria-label="${flipped ? `Show the front of ${c.name}'s card` : `Turn over ${c.name}'s card`}" aria-pressed="${flipped}">
+        <span class="character-inner">
+          <span class="character-face" style="--character:${c.color};--character-pale:${c.pale}">
+            ${viewed ? `<span class="viewed-stamp">âœ“ Met</span>` : ""}
+            <span class="card-avatar">${avatarHTML(c.avatar, c.name)}</span>
+            <h2 class="character-name">${c.name}</h2><span class="pronouns">${c.pronouns}</span>
+            <p><strong>Looks:</strong> ${c.look}</p><p class="tap-note">Tap to meet ${c.name} â†»</p>
+          </span>
+          <span class="character-face character-back" style="--character:${c.color};--character-pale:${c.pale}">
+            <h3>${c.name}'s four parts</h3>${c.traits.map(traitHTML).join("")}<p>${c.bio}</p>
+            <p class="special"><strong>How the parts fit:</strong> ${c.special}</p><p class="tap-note">Tap to turn back â†»</p>
+          </span>
+        </span>
+      </button>`;
+    }
+    function flipCharacter(id) {
+      const firstView = !state.viewedCharacters.includes(id);
+      if (firstView) { state.viewedCharacters.push(id); state.points += 5; reward(`You met ${characters.find(c => c.id === id).name}. Five points!`); }
+      openCard = openCard === id ? null : id;
+      render(false);
+      const button = document.querySelector(`[data-character="${id}"]`); if (button) button.focus();
+    }
+    function startQuiz() { state.currentScreen = 3; state.currentRound = 0; state.currentQuestion = 0; state.quizStage = "truth"; state.celebrationRound = null; render(); }
+
+    function renderQuiz() {
+      if (state.celebrationRound !== null) return renderRoundCelebration();
+      const r = rounds[state.currentRound];
+      const q = r.questions[state.currentQuestion];
+      const globalNumber = state.currentRound * 4 + state.currentQuestion + 1;
+      const options = r.type === "concept" ? lessons.map(l => [l.id, `${l.icon} ${l.short}`]) : r.type === "character" ? characters.map(c => [c.id, c.name]) : [];
+      return `<section class="screen" aria-labelledby="quizTitle">
+        ${crewStrip()}
+        <div class="section-head"><span class="eyebrow">Quiz game â€¢ ${state.completedQuizzes.length}/12 stars</span><h1 id="quizTitle">${r.title}</h1><p class="lead">${r.subtitle}</p></div>
+        <div class="round-badges" aria-label="Quiz rounds">${rounds.map((x,i) => `<span class="round-badge ${i < state.currentRound ? "done" : i === state.currentRound ? "active" : ""}">${i < state.currentRound ? "âœ“ " : ""}Round ${i+1}</span>`).join("")}</div>
+        <article class="quiz-card panel">
+          <p class="question-count">Question ${globalNumber} of 12 â€¢ ${state.currentQuestion + 1} of 4 in this round</p>
+          ${r.type === "truth" && state.quizStage === "reason" ? `<span class="truth-stage">Good! Now choose the best reason.</span>` : ""}
+          <p class="scenario">${q.text}</p>
+          <div class="answers">
+            ${r.type === "truth" ? renderTruthAnswers(q) : options.map(([id,label]) => `<button type="button" class="answer-button" data-answer="${id}" aria-label="Answer ${safe(label)}">${label}</button>`).join("")}
+          </div>
+          <button type="button" class="hint-button" data-hint aria-label="Ask Ghoul for a hint">Need a hint? ðŸ”</button>
+          <div class="feedback" id="feedback" role="status"></div>
+        </article>
+      </section>`;
+    }
+    function renderTruthAnswers(q) {
+      if (state.quizStage === "truth") return `<button type="button" class="answer-button" data-truth="true" aria-label="Answer true">âœ“ True</button><button type="button" class="answer-button" data-truth="false" aria-label="Answer false">âœ— False</button>`;
+      return q.reasons.map((reason, i) => `<button type="button" class="answer-button" data-reason="${i}" aria-label="Choose reason: ${safe(reason)}">${reason}</button>`).join("");
+    }
+    function currentQuestion() { return rounds[state.currentRound].questions[state.currentQuestion]; }
+    function showFeedback(message, kind) { const box = document.getElementById("feedback"); box.className = `feedback ${kind}`; box.textContent = message; announce(message); }
+    function answerSimple(value) {
+      const q = currentQuestion();
+      if (value === q.answer) { completeQuestion(q); }
+      else { playTry(); showFeedback("Not quite â€” try again. Ghoul says every try helps your brain grow!", "try"); }
+    }
+    function answerTruth(value) {
+      const q = currentQuestion();
+      if ((value === "true") === q.truth) { state.quizStage = "reason"; playTone(520, .12); render(false); showFeedback("Yes! Now choose the reason that best explains it.", "good"); }
+      else { playTry(); showFeedback("Not this time. Think about which of the four parts the sentence mixes up.", "try"); }
+    }
+    function answerReason(index) {
+      const q = currentQuestion();
+      if (Number(index) === q.reason) completeQuestion(q);
+      else { playTry(); showFeedback("Try the other reason. Look for the answer that keeps two gender parts separate.", "try"); }
+    }
+    function completeQuestion(q) {
+      if (!state.completedQuizzes.includes(q.id)) { state.completedQuizzes.push(q.id); state.points += 10; }
+      playReward(); starBurst(); showFeedback(`Correct! ${q.explain}`, "good");
+      setTimeout(() => advanceQuiz(), 1150);
+    }
+    function advanceQuiz() {
+      state.quizStage = "truth";
+      if (state.currentQuestion < 3) state.currentQuestion += 1;
+      else state.celebrationRound = state.currentRound;
+      render();
+    }
+    function showHint() {
+      const q = currentQuestion(); uniquePush(state.hintUsage, q.id); saveState(); playTone(390, .1); showFeedback(`Ghoul's hint: ${q.hint}`, "hint");
+    }
+    function renderRoundCelebration() {
+      const round = state.celebrationRound;
+      const final = round === 2;
+      setTimeout(() => celebrate(26), 50);
+      return `<section class="screen celebration panel" aria-labelledby="celebrateTitle">
+        ${crewStrip()}<div class="big-star" aria-hidden="true">ðŸŒŸ</div>
+        <span class="eyebrow">Round ${round + 1} complete</span><h1 id="celebrateTitle">${final ? `You did it, ${safe(state.playerName)}!` : "Quest level cleared!"}</h1>
+        <p class="lead">${final ? "You earned all 12 learning stars. Stars show that you kept going and finished every challenge." : "Four more learning stars are glowing. Wrong tries did not take anything away."}</p>
+        <div class="speech"><strong>Ghoul says:</strong> â€œ${final ? "You learned four big gender ideas â€” and you learned them with kindness!" : "Brave brains try, learn, and try again. On to the next round!"}â€</div>
+        <div class="button-row center"><button type="button" class="primary-button" data-next-round aria-label="${final ? "Open your completion certificate" : "Start the next quiz round"}">${final ? "Open my certificate â†’" : "Next round â†’"}</button></div>
+      </section>`;
+    }
+    function nextRound() {
+      if (state.celebrationRound === 2) { state.currentScreen = 4; state.celebrationRound = null; }
+      else { state.currentRound += 1; state.currentQuestion = 0; state.quizStage = "truth"; state.celebrationRound = null; }
+      render();
+    }
+
+    function renderCertificate() {
+      return `<section class="screen certificate-shell" aria-labelledby="certificateTitle">
+        ${crewStrip()}
+        <div class="section-head"><span class="eyebrow">Quest complete</span><h2>Your certificate is ready</h2><p>Print it or play the adventure again.</p></div>
+        <article class="certificate">
+          <div aria-hidden="true">âœ¦ âœ¦ âœ¦</div><h1 id="certificateTitle">Gender Quest Explorer Certificate ðŸŒŸ</h1>
+          <p>This certifies that</p><div class="certificate-name">${safe(state.playerName)}</div>
+          <p class="certificate-copy">has completed GenderQuest and can tell the difference between <strong>body and sex traits</strong>, <strong>gender identity</strong>, <strong>gender expression</strong>, and <strong>gender nonconformity</strong>.</p>
+          <div class="star-total">â­ 12 of 12 learning stars â€¢ ${state.points} points</div>
+          <div class="certificate-crew">${crewFallback()}</div>
+          <div class="speech"><strong>Ghoul says:</strong> â€œYou did it! You learned four big ideas and showed great kindness. ðŸ’œâ€</div>
+        </article>
+        <div class="button-row center"><button type="button" class="primary-button" data-print aria-label="Print the GenderQuest certificate">ðŸ–¨ï¸ Print certificate</button><button type="button" class="secondary-button" data-play-again aria-label="Play GenderQuest again with the same name">â†» Play again</button></div>
+      </section>`;
+    }
+    function playAgain() {
+      const name = state.playerName, soundOn = state.soundOn;
+      state = { ...defaultState(), playerName: name, soundOn, currentScreen: 1 };
+      openCard = null; saveState(); render(); announce(`Starting a new quest for ${name}.`);
+    }
+
+    /* ================================================================
+       Sound, rewards, and input handling
+       ================================================================ */
+    function ensureAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); if (audioContext.state === "suspended") audioContext.resume(); }
+    function playTone(freq, duration = .12, delay = 0, volume = .055) {
+      if (!state.soundOn) return;
+      ensureAudio(); const now = audioContext.currentTime + delay; const osc = audioContext.createOscillator(); const gain = audioContext.createGain();
+      osc.type = "sine"; osc.frequency.setValueAtTime(freq, now); gain.gain.setValueAtTime(.001, now); gain.gain.exponentialRampToValueAtTime(volume, now + .02); gain.gain.exponentialRampToValueAtTime(.001, now + duration);
+      osc.connect(gain); gain.connect(audioContext.destination); osc.start(now); osc.stop(now + duration + .03);
+    }
+    function playReward() { [523, 659, 784].forEach((n,i) => playTone(n, .15, i * .11)); }
+    function playTry() { playTone(330, .16, 0, .035); setTimeout(() => playTone(280, .18, 0, .03), 110); }
+    function toggleSound() { state.soundOn = !state.soundOn; if (state.soundOn) { ensureAudio(); playReward(); } saveState(); updateHeader(); announce(`Sound is ${state.soundOn ? "on" : "off"}.`); }
+    function starBurst() { const star = document.createElement("div"); star.className = "star-burst"; star.textContent = "â­"; document.body.appendChild(star); setTimeout(() => star.remove(), 1050); }
+    function reward(message) { playReward(); starBurst(); announce(message); updateHeader(); }
+    function celebrate(count = 20) {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const icons = ["â­","ðŸ’œ","âœ¦","â—"];
+      for (let i=0; i<count; i++) { const bit = document.createElement("span"); bit.className = "confetti"; bit.textContent = icons[i % icons.length]; bit.style.setProperty("--x", `${Math.random()*100}vw`); bit.style.setProperty("--size", `${14+Math.random()*18}px`); bit.style.setProperty("--speed", `${1.4+Math.random()*1.5}s`); bit.style.setProperty("--drift", `${-70+Math.random()*140}px`); document.body.appendChild(bit); setTimeout(() => bit.remove(), 3200); }
+    }
+
+    document.addEventListener("submit", event => { if (event.target.id === "nameForm") startGame(event); });
+    document.addEventListener("click", event => {
+      const target = event.target.closest("button"); if (!target) return;
+      if (target.id === "soundButton") return toggleSound();
+      if (target.dataset.completeLesson) return completeLesson(target.dataset.completeLesson);
+      if (target.dataset.goScreen) return setScreen(Number(target.dataset.goScreen));
+      if (target.dataset.character) return flipCharacter(target.dataset.character);
+      if (target.hasAttribute("data-start-quiz")) return startQuiz();
+      if (target.dataset.answer) return answerSimple(target.dataset.answer);
+      if (target.dataset.truth) return answerTruth(target.dataset.truth);
+      if (target.dataset.reason) return answerReason(target.dataset.reason);
+      if (target.hasAttribute("data-hint")) return showHint();
+      if (target.hasAttribute("data-next-round")) return nextRound();
+      if (target.hasAttribute("data-print")) return window.print();
+      if (target.hasAttribute("data-play-again")) return playAgain();
+    });
+
+    // Recover gracefully if a saved version points beyond unlocked content.
+    if (state.currentScreen > 1 && state.completedLessons.length < 4) state.currentScreen = 1;
+    if (state.currentScreen > 2 && state.viewedCharacters.length < 6) state.currentScreen = 2;
+    if (state.currentScreen === 4 && state.completedQuizzes.length < 12) state.currentScreen = 3;
+    render(false);
+  </script>
+</body>
+</html>
