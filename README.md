@@ -21,8 +21,8 @@ The app works on phones, tablets, and computers. There are no accounts, advertis
 
 The game is an educational conversation aid, not an assessment and not a way to decide a child's identity. It tells children that they do not need to label themselves, that it is okay not to know, and that hobbies and feelings do not inherently belong to one gender.
 
-The current Poisonâ€“Loveâ€“Ghoul illustration is provisional original artwork created from the written brief because the referenced drawings were not available to the build task. Replace it with approved original character art before use if exact visual fidelity matters.
+The current Poison–Love–Ghoul illustration is provisional original artwork created from the written brief because the referenced drawings were not available to the build task. Replace it with approved original character art before use if exact visual fidelity matters.
 
 ## Technical note
 
-The complete appâ€”including styles, logic, sounds, and artworkâ€”is contained in `index.html`. It runs without a build step or internet connection after the page has loaded.
+The complete app—including styles, logic, sounds, and artwork—is contained in `index.html`. It runs without a build step or internet connection after the page has loaded.
